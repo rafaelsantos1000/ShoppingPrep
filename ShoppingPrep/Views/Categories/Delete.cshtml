@@ -1,0 +1,20 @@
+﻿@model ShoppingPrep.Data.Entities.Category
+
+@{
+    ViewData["Title"] = "Apagar Categoria";
+}
+
+<h1>Apagar</h1>
+
+<h3>Tem a certeza que pretende eliminar esta Categoria ?</h3>
+<div>
+    
+    <partial name="_CategoryDetails" />
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Apagar" class="btn btn-outline-danger" /> 
+        <a asp-action="Index" class="btn btn-outline-success">Voltar</a>
+    </form>
+</div>
+
