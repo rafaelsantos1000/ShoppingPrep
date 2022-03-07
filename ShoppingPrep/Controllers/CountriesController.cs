@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoppingPrep.Data;
 using ShoppingPrep.Data.Entities;
+using ShoppingPrep.Models;
 
 namespace ShoppingPrep.Controllers
 {
@@ -18,7 +19,7 @@ namespace ShoppingPrep.Controllers
         // GET: Countries
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Countries.ToListAsync());
+            return View(await _context.Countries.Include(c => c.States).ToListAsync());
         }
 
         // GET: Countries/Details/5
@@ -29,7 +30,9 @@ namespace ShoppingPrep.Controllers
                 return NotFound();
             }
 
-            var country = await _context.Countries
+            var country = await _context
+                .Countries
+                .Include(c => c.States)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (country == null)
             {
@@ -145,7 +148,9 @@ namespace ShoppingPrep.Controllers
                 return NotFound();
             }
 
-            var country = await _context.Countries
+            var country = await _context
+                .Countries
+                .Include(c => c.States)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (country == null)
             {
@@ -164,6 +169,72 @@ namespace ShoppingPrep.Controllers
             _context.Countries.Remove(country);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+
+        public async Task<IActionResult> AddState(int? id)
+        {
+            if(id == null)
+            {
+                return NotFound();
+            }
+
+            Country country = await _context.Countries.FindAsync(id);
+            if(country == null)
+            {
+                return NotFound();
+            }
+
+            StateViewModel model = new()
+            {
+                CountryId = country.Id,
+            };
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddState([Bind("Id,Name,CountryId")] StateViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                Country country = await _context.Countries.FindAsync(model.CountryId);
+               
+                State state = new()
+                {
+                    Name = model.Name,
+                    Country = country,
+                    Cities = new List<City>()
+                };
+
+                _context.Add(state);
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Details), new {state.Country.Id});
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
+
+                    if (dbUpdateException.InnerException.Message.Contains("duplicate"))
+                    {
+                        ModelState.AddModelError(string.Empty, "Já existe uma Região/Estado com o mesmo nome");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
+
+            }
+            return View(model);
         }
 
     }
