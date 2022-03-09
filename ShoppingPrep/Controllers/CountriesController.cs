@@ -45,7 +45,12 @@ namespace ShoppingPrep.Controllers
         // GET: Countries/Create
         public IActionResult Create()
         {
-            return View();
+            Country country = new()
+            {
+                States = new List<State>(),
+            };
+
+            return View(country);
         }
 
         // POST: Countries/Create
@@ -53,7 +58,7 @@ namespace ShoppingPrep.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Country country)
+        public async Task<IActionResult> Create([Bind("Id,Name,States")] Country country)
         {
             if (ModelState.IsValid)
             {
@@ -75,7 +80,7 @@ namespace ShoppingPrep.Controllers
                         ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
                     }
                 }
-                catch(Exception exception)
+                catch (Exception exception)
                 {
                     ModelState.AddModelError(string.Empty, exception.Message);
                 }
@@ -174,13 +179,13 @@ namespace ShoppingPrep.Controllers
 
         public async Task<IActionResult> AddState(int? id)
         {
-            if(id == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
             Country country = await _context.Countries.FindAsync(id);
-            if(country == null)
+            if (country == null)
             {
                 return NotFound();
             }
@@ -201,7 +206,7 @@ namespace ShoppingPrep.Controllers
             if (ModelState.IsValid)
             {
                 Country country = await _context.Countries.FindAsync(model.CountryId);
-               
+
                 State state = new()
                 {
                     Name = model.Name,
@@ -214,11 +219,84 @@ namespace ShoppingPrep.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Details), new {state.Country.Id});
+                    return RedirectToAction(nameof(Details), new { Id = state.Country.Id });
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
 
+                    if (dbUpdateException.InnerException.Message.Contains("duplicate"))
+                    {
+                        ModelState.AddModelError(string.Empty, "Já existe uma Região/Estado com o mesmo nome");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
+
+            }
+            return View(model);
+        }
+
+
+        public async Task<IActionResult> EditState(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            State state = await _context
+                .States
+                .Include(s => s.Country)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (state == null)
+            {
+                return NotFound();
+            }
+
+            StateViewModel model = new()
+            {
+                CountryId = state.Country.Id,
+                Id = state.Id,
+                Name = state.Name
+            };
+
+            return View(model);
+
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditState(int id, [Bind("Id,Name,CountryId")] StateViewModel model)
+        {
+            if (id != model.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    State state = new()
+                    {
+                        Id = model.Id,
+                        Name = model.Name,
+                    };
+
+                    _context.Update(state);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Details), new { Id = model.CountryId });
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
                         ModelState.AddModelError(string.Empty, "Já existe uma Região/Estado com o mesmo nome");
