@@ -1,23 +1,25 @@
-﻿@model ShoppingPrep.Data.Entities.Country
+﻿@model ShoppingPrep.Models.CityViewModel
 
 @{
-    ViewData["Title"] = "Editar País";
+    ViewData["Title"] = "Editar Cidade";
 }
 
-<h1>Editar País</h1>
+<h1>Editar Cidade</h1>
 
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="EditCity">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="States" />
-            <partial name="_Country" />
+            <input type="hidden" asp-for="StateId" />
+
+            <partial name="_City" />
+
             <div class="form-group">
                 <br />
                 <input type="submit" value="Gravar" class="btn btn-outline-primary" />
-                <a asp-action="Index" class="btn btn-outline-success">Voltar</a>
+                <a asp-action="DetailsState" asp-route-id="@Model?.StateId" class="btn btn-outline-success">Voltar</a>
             </div>
         </form>
     </div>
@@ -26,3 +28,7 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+
+
+

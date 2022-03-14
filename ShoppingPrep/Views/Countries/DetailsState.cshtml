@@ -1,7 +1,7 @@
-﻿@model ShoppingPrep.Data.Entities.Country
+﻿@model ShoppingPrep.Data.Entities.State
 
 @{
-    ViewData["Title"] = "Detalhes do País";
+    ViewData["Title"] = "Detalhes da Região/Estado";
 }
 
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
@@ -9,49 +9,43 @@
 <h1>Detalhes</h1>
 
 <div>
-    <partial name="_CountryDetails" />
+    <partial name="_StateDetails" />
 </div>
 
 <div>
-    <a asp-action="AddState" asp-route-id="@Model?.Id" class="btn btn-outline-primary">Adicionar Região/Estado</a>
-    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-outline-warning">Editar País</a>
-    <a asp-action="Index" class="btn btn-outline-success">Voltar</a>
+    <a asp-action="AddCity" asp-route-id="@Model?.Id" class="btn btn-outline-primary">Adicionar Cidade</a>
+    <a asp-action="EditState" asp-route-id="@Model?.Id" class="btn btn-outline-warning">Editar Região/Estado</a>
+    <a asp-action="Details" asp-route-id="@Model?.Country.Id" class="btn btn-outline-success">Voltar</a>
 </div>
 
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title mt-2">Regiões/Estados</h3>
+                <h3 class="panel-title mt-2">Cidades</h3>
             </div>
             <div class="panel-body">
                 <table class="table table-hover table-responsive table-striped" id="MyTable">
                     <thead>
                         <tr>
                             <th>
-                                @Html.DisplayNameFor(model => model.States.FirstOrDefault().Name)
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.States.FirstOrDefault().CitiesNumber)
+                                @Html.DisplayNameFor(model => model.Cities.FirstOrDefault().Name)
                             </th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
 
-                        @foreach (var item in Model.States)
+                        @foreach (var item in Model.Cities)
                         {
                             <tr>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.Name)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.CitiesNumber)
-                                </td>
-                                <td>
-                                    <a asp-action="EditState" asp-route-id="@item.Id" class="btn btn-outline-warning">Editar Região/Estado</a>
-                                    <a asp-action="DetailsState" asp-route-id="@item.Id" class="btn btn-outline-info">Detalhes</a>
-                                    <a asp-action="DeleteState" asp-route-id="@item.Id" class="btn btn-outline-danger">Apagar</a>
+                                    <a asp-action="EditCity" asp-route-id="@item.Id" class="btn btn-outline-warning">Editar Cidade</a>
+                                    <a asp-action="DetailsCity" asp-route-id="@item.Id" class="btn btn-outline-info">Detalhes</a>
+                                    <a asp-action="DeleteCity" asp-route-id="@item.Id" class="btn btn-outline-danger">Apagar</a>
                                 </td>
                             </tr>
                         }
@@ -81,3 +75,5 @@
         });
     </script>
 }
+
+
