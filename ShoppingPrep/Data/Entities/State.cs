@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ShoppingPrep.Data.Entities
 {
@@ -12,6 +13,7 @@ namespace ShoppingPrep.Data.Entities
         public string Name { get; set; }
 
 
+        [JsonIgnore]
         public Country Country { get; set; }
 
 
